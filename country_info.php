@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>
+    <?php
+        $c_id = $_GET["c_id"];
+
+        $mysqli = mysqli_connect("localhost", "root", "1234", "webdb");
+        mysqli_set_charset($mysqli, "utf8");
+
+        $result = mysqli_query($mysqli, "SELECT c_name FROM country WHERE c_id=$c_id");
+        $row = mysqli_fetch_row($result);
+        $c_name = $row[0];
+
+        $result = mysqli_query($mysqli, "SELECT * FROM player WHERE c_id=$c_id");
+    ?>
+    <head>
+        <title><?php echo $c_name; ?> - 축구 위키</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <?php            
+            session_start();
+            if (!isset($_SESSION["u_id"]))
+                header("Location: login.php");
+            $u_id = $_SESSION["u_id"];
+        ?>
+        
+        <div style="text-align: right">
+            <b><?php echo $u_id; ?>님 환영합니다.</b>
+            <a href=logout.php>로그아웃</a>
+        </div>
+        
+        <div style="text-align: center; margin: 10px; margin-bottom: 30px">
+            <button onclick="location.href='main.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                메인
+            </button>
+            <button onclick="location.href='country_list.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                국가 목록
+            </button>
+            <button onclick="location.href='league_list.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                리그/팀 목록
+            </button>
+            <button onclick="location.href='manager_list.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                감독 목록
+            </button>
+            <button onclick="location.href='player_list.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                선수 목록
+            </button>
+            <button onclick="location.href='favorite_list.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                관심선수 목록
+            </button>
+            <button onclick="location.href='player_search.php'"
+                    style="border: 0px; width: 170px; padding: 10px; font-size: 20px; background-color: #000080; color: #FFFFFF">
+                선수 검색
+            </button>
+        </div>
+        
+        <div style="text-align: center">
+            <img src="https://futhead.cursecdn.com/static/img/19/nations/<?php echo $c_id?>.png" width="100px" height="auto"><br/>
+            <b><?php echo $c_name; ?></b><br/>
+            <br/>
+        </div>
+        <center>
+            <table style="text-align: center">
+                <tbody>
+                    <tr>
+                        <td><b>고유번호</b></td>
+                        <td><b>이름</b></td>
+                        <td><b>생년월일</b></td>
+                        <td><b>포지션</b></td>
+                        <td><b>키</b></td>
+                        <td><b>몸무게</b></td>
+                        <td><b>소속팀</b></td>
+                        <td><b>계약기간</b></td>
+                    </tr>
+                    <?php
+                        while ($row = mysqli_fetch_row($result)) {
+                            echo "<tr>";
+                            echo "<td>" . $row[0] . "</td>";
+                            echo "<td><a href='player_info.php?p_id=" . $row[0] . "'>";
+                                if ($row[7] == 167)
+                                    echo $row[2] . $row[1];
+                                else
+                                    echo $row[1] . " " . $row[2];
+                            echo "</a></td>";
+                            echo "<td>" . $row[3] . "</td>";
+                            echo "<td>" . $row[4] . "</td>";
+                            echo "<td>" . $row[5] . "</td>";
+                            echo "<td>" . $row[6] . "</td>";
+                            echo "<td><a href='team_info.php?t_id=" . $row[8] . "'>";
+                                $t_result = mysqli_query($mysqli, "SELECT t_name FROM team WHERE t_id=$row[8]");
+                                $t_row = mysqli_fetch_row($t_result);
+                                echo "<img src='https://futhead.cursecdn.com/static/img/19/clubs/" . $row[8] . ".png' width='auto' height='15'>";
+                                echo " " . $t_row[0];
+                            echo "</a></td>";
+                            echo "<td>" . $row[9] . "</td>";
+                            echo "</tr>";
+                        }
+                    ?>
+                </tbody>
+            </table>
+        </center>
+    </body>
+</html>
